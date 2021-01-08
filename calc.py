@@ -9,18 +9,26 @@ class calc:
 		self.tmp_x = 0
 		self.tmp_y = 0
 		self.x_max = 10
-		self.x_min = 0
+		self.x_min = 1
 		self.y_max = 10
-		self.y_min = 0
+		self.y_min = 1
 		self.x_step = (self.x_max - self.x_min)/10
-		self.y_step = (self.y_max - self.y_min)/10
+		self.y_step = (self.y_max - self.y_min)/10	
 
+	def drange(self, start, stop, step):
+		r_value = start
+		while r_value < stop:
+			yield r_value
+			r_value += step
 
-	def calc(self, function='x', x_Values=[0, 1, 2, 3, 4] ):
+	def calc(self, function='x'):
 
 		y_Values = []
 		op_list = self.cut(function)
-		for value in x_Values:
+
+		x_Values = [x for x in self.drange(self.x_min, self.x_max, self.x_step)]
+
+		for value[1] in x_Values:
 
 			self.find_value(value, op_list)
 
@@ -134,4 +142,4 @@ class calc:
 
 c = calc()
 
-c.calc('2*x', [x for x in range(1, 10)])
+c.calc('x')
