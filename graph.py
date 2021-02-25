@@ -1,28 +1,54 @@
 
 class Graph():
 	'''
-	========
-	OVERVIEW
-	========
-	The Graph class is an object which contains all methods and values involved in diplaying the graph
-	based on a series of coordinates.
-
 	=============
 	Functionality
 	=============
-	This class allows the 
+	This class provides a way for users to graph points on a CLI based graph.
 
 	=======
 	Methods
 	=======
-	__init__ ( self, x_max, x_min):
+	drange ( start, stop, step )
+
+		This method yeilds floating point numbers or integers from start to stop, in intervals of step
+
+	fit_real_y_to_window ( real_y_values )
+
+		This function takes a list of y values and finds the closest y value displayable by the window.
+		This process is called "mapping" from now on.
+
+		It should return a list of values from 0 to 20, each corresponding with one possible value
+		displayable by the window.
+
+		This function works by finding the absolute distance between each of the real y values and each of 
+		the displayable y values. The program then uses some selection to choose the closest y value, which
+		is appened to a list of mapped y values. The list is eventually returned by the function.
+
+	fit_real_x_to_window ( real_x_values )
+
+		This function has the same functionality as fit_real_y_to_window, but for the x values.
+
+		These functions should probably be combined into a single, more general function since they're 
+		almost exact copies of each other. 
+
+	add_point_on_grid ( point )
+
+		An abstraction of the code used to place points at some location in the grid.
+		Included to make the code more readable.
+
+		point should be a tuple in the form of (x, y)
+
+	display ()
+
+		This function is responsible for displaying the graph.
+		It simply iterates through each dimension of the grid and prints them to the screen
+		with proper formatting.
+
+	graph_points ( points )
 		
-		int x_max 
-
-	==========
-	Attributes
-	==========
-
+		This function takes a dictionary of points and passes them through multiple functions before 
+		displaying a graph of the points to the console.
 	'''
 
 	def __init__( self, x_max=20, x_min=0, y_max=20, y_min=0, resolution=(21, 21)):
@@ -57,7 +83,6 @@ class Graph():
 		# at this point, the grid is a resolution[0] x resolution[1] grid of whatever self.whitespace is set to 
 		self.grid = [ [ self.whiteSpace for x in range(resolution[0]+1) ] for y in range(resolution[1]+1) ]
 
-
 	def drange(self, start, stop, step=1):
 		'''
 		A utility range function which allows the use of floating point values as the step.
@@ -70,15 +95,6 @@ class Graph():
 			start += step
 
 	def fit_real_y_to_window(self, real_y_values:list):
-		'''
-		This function takes a list of y values and finds the closest y value displayable by the window.
-		This process is called "mapping" from now on.
-		It should return a list of values from 0 to 20, each corresponding with one possible value
-		displayable by the window.
-		This function works by finding the absolute distance between each of the real y values and each of 
-		the displayable y values. The program then uses some selection to choose the closest y value, which
-		is appened to a list of mapped y values. The list is eventually returned by the function.
-		'''
 
 		# This uses a list comprehension to generate a list of all possible displayable y values.
 		displayable_y_values = [ y for y in self.drange(self.y_min, (self.y_max + self.y_step), self.y_step)]
@@ -112,9 +128,6 @@ class Graph():
 		return mapped_y_indexes
 
 	def fit_real_x_to_window(self, real_x_values:list):
-		'''
-		This function is the same as fit_real_y_to_window, but for the x values
-		'''
 
 		displayable_x_values = [ x for x in self.drange(self.x_min, (self.x_max + self.x_step), self.x_step)]
 
@@ -142,18 +155,11 @@ class Graph():
 		return mapped_x_indexes
 		
 	def add_point_on_grid(self, point=(0, 0)):
-		'''
-		An abstraction of the code used to place points at some location in the grid.
-		Included to make the final code more readable.
-		'''
+
 		self.grid[-point[1]-1][point[0]] = self.point
 
-	def display(self):
+	def display(self): 
 		'''
-		This function is responsible for displaying the graph.
-		It simply iterates through each dimension of the grid and prints them to the screen
-		with proper formatting. 
-
 		TODO: 
 		Fix powershell so it doesn't fuck up the unicode box characters.
 		Include some sort of detection to place axis at their correct spot.
@@ -176,50 +182,21 @@ class Graph():
 		print('┛')
 
 	def graph_points(self, points:dict):
-		'''
-		This function takes a dictionary of points and passes them through multiple functions before 
-		displaying a graph of the points to the console.
-		'''
+		
+		# define lists of x and y values
 		x_values = points.keys()
 		y_values = points.values()
 
+		# map the x and y lists to the displayable values in the window
 		mapped_x_indexes = self.fit_real_x_to_window(x_values)
-
 		mapped_y_indexes = self.fit_real_y_to_window(y_values)
 
+		# make a list of tuples which represent points on the graph 
 		mapped_points = list( zip(mapped_x_indexes, mapped_y_indexes) )
 
+		# add the points in mapped_points to the grid
 		for point in mapped_points:
 			self.add_point_on_grid(point)
 
+		# call display() to output the final graph to the console
 		self.display()
-
-# TEST CODE BELOW. SHOULD NOT BE INCLUDED IN FINAL VERSION.
-
-gph = Graph()
-
-points = {    0: 0.1, 
-			  1: 1.2, 
-			  2: 2.1, 
-			  3: 3.1, 
-			  4: 4.1, 
-			  5.11: 5.1, 
-			  6.9: 6.1, 
-			  7.2: 7.1, 
-			  #8: 8.1, 
-			  #9: 9.1, 
-			  #10: 10.1, 
-			  #11: 11.1, 
-			  12: 12.1, 
-			  13: 13.1, 
-			  14: 14.1, 
-			  15: 15.1, 
-			  16: 16.1,
-			  17: 17.1, 
-			  18: 18.1, 
-			  19: 19.1, 
-			  20: 20.1    }
-
-
-gph.graph_points( points )
-
