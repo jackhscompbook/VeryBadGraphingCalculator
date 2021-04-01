@@ -1,202 +1,217 @@
 
 class Graph():
-	'''
-	=============
-	Functionality
-	=============
-	This class provides a way for users to graph points on a CLI based graph.
+    '''
+    =============
+    Functionality
+    =============
 
-	=======
-	Methods
-	=======
-	drange ( start, stop, step )
+        This class provides a way for users to graph points on a CLI based graph.
 
-		This method yeilds floating point numbers or integers from start to stop, in intervals of step
+    =======
+    Methods
+    =======
 
-	fit_real_y_to_window ( real_y_values )
+        drange ( start, stop, step )
 
-		This function takes a list of y values and finds the closest y value displayable by the window.
-		This process is called "mapping" from now on.
+            This method yeilds floating point numbers or integers from start to stop, in intervals of step
 
-		It should return a list of values from 0 to 20, each corresponding with one possible value
-		displayable by the window.
+        fit_real_y_to_window ( real_y_values )
 
-		This function works by finding the absolute distance between each of the real y values and each of 
-		the displayable y values. The program then uses some selection to choose the closest y value, which
-		is appened to a list of mapped y values. The list is eventually returned by the function.
+            This function takes a list of y values and finds the closest y value displayable by the window.
+            This process is called "mapping" from now on.
 
-	fit_real_x_to_window ( real_x_values )
+            It should return a list of values from 0 to 20, each corresponding with one possible value
+            displayable by the window.
 
-		This function has the same functionality as fit_real_y_to_window, but for the x values.
+            This function works by finding the absolute distance between each of the real y values and each of 
+            the displayable y values. The program then uses some selection to choose the closest y value, which
+            is appened to a list of mapped y values. The list is eventually returned by the function.
 
-		These functions should probably be combined into a single, more general function since they're 
-		almost exact copies of each other. 
+        fit_real_x_to_window ( real_x_values )
 
-	add_point_on_grid ( point )
+            This function has the same functionality as fit_real_y_to_window, but for the x values.
 
-		An abstraction of the code used to place points at some location in the grid.
-		Included to make the code more readable.
+            These functions should probably be combined into a single, more general function since they're 
+            almost exact copies of each other. 
 
-		point should be a tuple in the form of (x, y)
+        add_point_on_grid ( point )
 
-	display ()
+            An abstraction of the code used to place points at some location in the grid.
+            Included to make the code more readable.
 
-		This function is responsible for displaying the graph.
-		It simply iterates through each dimension of the grid and prints them to the screen
-		with proper formatting.
+            point should be a tuple in the form of (x, y)
 
-	graph_points ( points )
-		
-		This function takes a dictionary of points and passes them through multiple functions before 
-		displaying a graph of the points to the console.
-	'''
+        display ()
 
-	def __init__( self, x_max=20, x_min=0, y_max=20, y_min=0, resolution=(21, 21)):
-		'''
-		init function of the Graph class. No explination needed here.
-		'''
+            This function is responsible for displaying the graph.
+            It simply iterates through each dimension of the grid and prints them to the screen
+            with proper formatting.
 
-		# defines the resolution of the grid.
-		self.resolution = resolution
+        graph_points ( points )
+            
+            This function takes a dictionary of points and passes them through multiple functions before 
+            displaying a graph of the points to the console.
+    '''
 
-		# defines what character will be used to draw lines on the graph. 
-		self.point = '*'
+    def __init__( self, x_max=20, x_min=0, y_max=20, y_min=0, resolution=(21, 21)):
+        '''
+        init function of the Graph class. No explination needed here.
+        '''
 
-		# defines what character will be used for the blank areas of the graph
-		self.whiteSpace = ' '
+        # defines the resolution of the grid.
+        self.resolution = resolution
 
-		# defines the maximum and minimum x values repersented by the window.
-		self.x_max = x_max
-		self.x_min = x_min
+        # defines what character will be used to draw lines on the graph. 
+        self.point = '*'
 
-		# defines the numerical distance between values repersented by columns in the window
-		self.x_step = ( x_max - x_min ) / ( resolution[0] - 1 )
+        # defines what character will be used for the blank areas of the graph
+        self.whiteSpace = ' '
 
-		# defines the maximum and minimum y vlues repersented in the window
-		self.y_max = y_max
-		self.y_min = y_min
+        # defines the maximum and minimum x values repersented by the window.
+        self.x_max = x_max
+        self.x_min = x_min
 
-		# defines the numerical distance between values repersented by columns in the window
-		self.y_step = ( y_max - y_min ) / ( resolution[1] - 1 )
+        # defines the numerical distance between values repersented by columns in the window
+        self.x_step = ( x_max - x_min ) / ( resolution[0] - 1 )
 
-		# generates a 2 dimensional list of possible points, henceforth called "the grid"
-		# at this point, the grid is a resolution[0] x resolution[1] grid of whatever self.whitespace is set to 
-		self.grid = [ [ self.whiteSpace for x in range(resolution[0]+1) ] for y in range(resolution[1]+1) ]
+        # defines the maximum and minimum y vlues repersented in the window
+        self.y_max = y_max
+        self.y_min = y_min
 
-	def drange(self, start, stop, step=1):
-		'''
-		A utility range function which allows the use of floating point values as the step.
-		The function yields values beginning at the parameter start and ending at the parameter stop.
-		The values will increase by the value of step each iteration of the loop.
-		In some cases this might start an infinite loop, but those shouldn't happen here.
-		'''
-		while start < stop:
-			yield start
-			start += step
+        # defines the numerical distance between values repersented by columns in the window
+        self.y_step = ( y_max - y_min ) / ( resolution[1] - 1 )
 
-	def fit_real_y_to_window(self, real_y_values:list):
+        # generates a 2 dimensional list of possible points, henceforth called "the grid"
+        # at this point, the grid is a resolution[0] x resolution[1] grid of whatever self.whitespace is set to 
+        self.grid = [ [ self.whiteSpace for x in range(resolution[0]+1) ] for y in range(resolution[1]+1) ]
 
-		# This uses a list comprehension to generate a list of all possible displayable y values.
-		displayable_y_values = [ y for y in self.drange(self.y_min, (self.y_max + self.y_step), self.y_step)]
+    def drange(self, start, stop, step=1):
+        '''
+        A utility range function which allows the use of floating point values as the step.
+        The function yields values beginning at the parameter start and ending at the parameter stop.
+        The values will increase by the value of step each iteration of the loop.
+        In some cases this might start an infinite loop, but those shouldn't happen here.
+        '''
+        while start < stop:
+            yield start
+            start += step
 
-		mapped_y_indexes = []
+    def trim_y_values(self, real_y_values):
 
-		# This loop iterates through all real y values.
-		for real in real_y_values:
-			
-			# These variables store the lowest distance, the index of the value with the lowest distance
-			# to the real y value and the index of the y value currently being compared
-			lowest_distance = None
-			lowest_distance_index = 0
-			current_index = 0
+        trimmed = []
+        for real in real_y_values:
+            if real > self.y_max or real < self.y_min:
+                trimmed.append('OUTOFRANGE')
+            else:
+                trimmed.append(real)
+        return trimmed
 
-			# This loop iterates though all displayable values.
-			for possible in displayable_y_values:
+    def fit_real_y_to_window(self, real_y_values:list):
 
-				distance = abs(real - possible)
+        # This uses a list comprehension to generate a list of all possible displayable y values.
+        displayable_y_values = [ y for y in self.drange(self.y_min, (self.y_max + self.y_step), self.y_step)]
 
-				if lowest_distance == None or distance < lowest_distance:
+        mapped_y_indexes = []
+        trimmed_y_values = self.trim_y_values(real_y_values)
 
-					lowest_distance = distance
-					lowest_distance_index = current_index
+        # This loop iterates through all real y values.
+        for real in trimmed_y_values:
 
-				current_index += 1
+            if real == 'OUTOFRANGE':
+                mapped_y_indexes.append(real)
+                continue
 
-			mapped_y_indexes.append(lowest_distance_index)
+            # These variables store the lowest distance, the index of the value with the lowest distance
+            # to the real y value and the index of the y value currently being compared
+            lowest_distance = None
+            lowest_distance_index = 0
+            current_index = 0
 
-			# print('========================================')
-		return mapped_y_indexes
+            # This loop iterates though all displayable values.
+            for possible in displayable_y_values:
 
-	def fit_real_x_to_window(self, real_x_values:list):
+                distance = abs(real - possible)
 
-		displayable_x_values = [ x for x in self.drange(self.x_min, (self.x_max + self.x_step), self.x_step)]
+                if lowest_distance == None or distance < lowest_distance:
 
-		mapped_x_indexes = []
+                    lowest_distance = distance
+                    lowest_distance_index = current_index
 
-		for real in real_x_values:
+                current_index += 1
 
-			lowest_distance = None
-			lowest_distance_index = 0
-			current_index = 0
+            mapped_y_indexes.append(lowest_distance_index)
 
-			for possible in displayable_x_values:
+            # print('========================================')
+        return mapped_y_indexes
 
-				distance = abs(real - possible)
+    def fit_real_x_to_window(self, real_x_values:list):
 
-				if lowest_distance == None or distance < lowest_distance:
+        displayable_x_values = [ x for x in self.drange(self.x_min, (self.x_max + self.x_step), self.x_step)]
 
-					lowest_distance = distance
-					lowest_distance_index = current_index
+        mapped_x_indexes = []
 
-				current_index += 1
+        for real in real_x_values:
 
-			mapped_x_indexes.append(lowest_distance_index)
+            lowest_distance = None
+            lowest_distance_index = 0
+            current_index = 0
 
-		return mapped_x_indexes
-		
-	def add_point_on_grid(self, point=(0, 0)):
+            for possible in displayable_x_values:
 
-		self.grid[-point[1]-1][point[0]] = self.point
+                distance = abs(real - possible)
 
-	def display(self): 
-		'''
-		TODO: 
-		Fix powershell so it doesn't fuck up the unicode box characters.
-		Include some sort of detection to place axis at their correct spot.
-		'''
+                if lowest_distance == None or distance < lowest_distance:
 
-		# this block of code iterates though both dimensions of the grid and prints them to the console.
-		# It looks like a horrible mess because of the many box characters being printed so the grid
-		# looks nice once it's displayed.
-		print('┏', end='')
-		[ print('━━', end='') for _ in self.drange(0, self.resolution[1]+1) ]
-		print('┓')
-		for y in self.grid:
-			print('┃', end='')
-			for x in y:
-				print(x, end = self.whiteSpace)
-			print('┃', end='')
-			print('')
-		print('┗', end='')
-		[ print('━━', end='') for _ in self.drange(0, self.resolution[1]+1) ]
-		print('┛')
+                    lowest_distance = distance
+                    lowest_distance_index = current_index
 
-	def graph_points(self, points:dict):
-		
-		# define lists of x and y values
-		x_values = points.keys()
-		y_values = points.values()
+                current_index += 1
 
-		# map the x and y lists to the displayable values in the window
-		mapped_x_indexes = self.fit_real_x_to_window(x_values)
-		mapped_y_indexes = self.fit_real_y_to_window(y_values)
+            mapped_x_indexes.append(lowest_distance_index)
 
-		# make a list of tuples which represent points on the graph 
-		mapped_points = list( zip(mapped_x_indexes, mapped_y_indexes) )
+        return mapped_x_indexes
+        
+    def add_point_on_grid(self, point=(0, 0)):
 
-		# add the points in mapped_points to the grid
-		for point in mapped_points:
-			self.add_point_on_grid(point)
+            self.grid[-point[1]-1][point[0]] = self.point
 
-		# call display() to output the final graph to the console
-		self.display()
+    def display(self): 
+        '''
+        TODO: 
+        Fix powershell so it doesn't fuck up the unicode box characters.
+        Include some sort of detection to place axis at their correct spot.
+        '''
+
+        # this block of code iterates though both dimensions of the grid and prints them to the console.
+        # It looks like a horrible mess because of the many box characters being printed so the grid
+        # looks nice once it's displayed.
+        print('┏', end='')
+        [ print('━━', end='') for _ in self.drange(0, self.resolution[1]+1) ]
+        print('┓')
+        for y in self.grid:
+            print('┃', end='')
+            for x in y:
+                print(x, end = self.whiteSpace)
+            print('┃', end='')
+            print('')
+        print('┗', end='')
+        [ print('━━', end='') for _ in self.drange(0, self.resolution[1]+1) ]
+        print('┛')
+
+    def graph_points(self, points:dict):
+        
+        # define lists of x and y values
+        x_values = points.keys()
+        y_values = points.values()
+
+        # map the x and y lists to the displayable values in the window
+        mapped_x_indexes = self.fit_real_x_to_window(x_values)
+        mapped_y_indexes = self.fit_real_y_to_window(y_values)
+
+        # make a list of tuples which represent points on the graph 
+        mapped_points = list( zip(mapped_x_indexes, mapped_y_indexes) )
+
+        # add the points in mapped_points to the grid
+        for point in mapped_points:
+            if point[1] != 'OUTOFRANGE':
+                self.add_point_on_grid(point)
